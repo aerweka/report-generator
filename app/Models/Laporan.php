@@ -11,4 +11,11 @@ class Laporan extends Model
 
     protected $table = 'M_LAPORAN';
     protected $primaryKey = 'ID';
+    protected $fillable = [
+        'M_GRUP_ID',
+        'JENIS_LAPORAN',
+        'JUDUL_LAPORAN',
+        'COVER_LAPORAN',
+        'KETERANGAN_LAPORAN',
+    ];
 }
