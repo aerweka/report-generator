@@ -16,3 +16,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::group(['middleware' => 'is_verified',], function () {
+});
+
+Route::group([
+    'prefix' => 'laporan',
+    'as' => 'laporan.',
+], function () {
+    Route::get('/', [LaporanController::class, 'index'])->name('index');
+    Route::get('/create', [LaporanController::class, 'create'])->name('create');
+    Route::post('/store', [LaporanController::class, 'store'])->name('store');
+    Route::get('/show/{id}', [LaporanController::class, 'show'])->name('show');
+    Route::get('/edit/{id}', [LaporanController::class, 'edit'])->name('show');
+    Route::post('/update', [LaporanController::class, 'update'])->name('update');
+});
