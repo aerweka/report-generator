@@ -51,15 +51,13 @@ class LaporanController extends Controller
         $data = Laporan::create($validated);
 
         $index = 0;
-        foreach ($request as $key => $value) {
-            // for ($i=0; $i < count($request->JUDUL_HALAMAN); $i++) { 
+        foreach ($request as $value) {
             DetailLaporan::create([
                 'M_LAPORAN_ID' => $data->id,
                 'NOMOR_HALAMAN' => $index++,
                 'JUDUL_HALAMAN' => $value,
                 'EMBED_CODE' => $value,
             ]);
-            // }
         }
 
         return redirect()->route('laporan.show', ['id' => $data->id]);
@@ -75,7 +73,7 @@ class LaporanController extends Controller
     {
         $data = Laporan::where('id', $id)
             ->rightJoin('M_DETAIL_LAPORAN', 'M_DETAIL_LAPORAN.M_LAPORAN_ID', 'M_LAPORAN.id')
-            ->pluck('JUDUL_HALAMAN', 'EMBED_CODE', 'COVER_LAPORAN');
+            ->pluck('JUDUL_HALAMAN', 'NOMOR_HALAMAN', 'EMBED_CODE', 'COVER_LAPORAN');
 
         return view('laporan.show', compact('data'));
     }
@@ -88,11 +86,11 @@ class LaporanController extends Controller
      */
     public function edit($id)
     {
-        $data = Laporan::where('id', $id)
-            ->rightJoin('M_DETAIL_LAPORAN', 'M_DETAIL_LAPORAN.M_LAPORAN_ID', 'M_LAPORAN.id')
-            ->get();
+        $dataLaporan = Laporan::where('M_LAPORAN.id', $id)->get();
 
-        return view('laporan.edit', compact('data'));
+        $dataDetail = DetailLaporan::where('M_LAPORAN_ID', $id)->get();
+
+        return view('laporan.edit', compact('dataLaporan', 'dataDetail'));
     }
 
     /**
@@ -105,6 +103,7 @@ class LaporanController extends Controller
     public function update(LaporanRequest $request, $id)
     {
         $validated = $request->validated();
+
         $validated['COVER_LAPORAN'] = $this->saveAndCreatePathOfCoverLaporan($validated['COVER_LAPORAN']);
 
         if (!$validated['COVER_LAPORAN']) return back()->withErrors('Gagal menyimpan cover laporan');
@@ -118,15 +117,15 @@ class LaporanController extends Controller
         $data->update($validated);
 
         $index = 0;
-        foreach ($request as $key => $value) {
-            // for ($i=0; $i < count($request->JUDUL_HALAMAN); $i++) { 
-            DetailLaporan::create([
+        foreach ($request as $value) {
+            DetailLaporan::updateOrCreate([
+                'id' => $value->M_DETAIL_LAPORAN_ID,
+            ], [
                 'M_LAPORAN_ID' => $data->id,
                 'NOMOR_HALAMAN' => $index++,
-                'JUDUL_HALAMAN' => $value,
-                'EMBED_CODE' => $value,
+                'JUDUL_HALAMAN' => $value->JUDUL_HALAMAN,
+                'EMBED_CODE' => $value->EMBED_CODE,
             ]);
-            // }
         }
 
         return redirect()->route('laporan.show', ['id' => $data->id]);
