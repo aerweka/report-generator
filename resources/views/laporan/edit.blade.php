@@ -8,6 +8,7 @@
 	<form method="POST" action="{{ route('laporan.update') }}" class="form-horizontal" enctype="multipart/form-data"
 		id="laporan_form">
 		@csrf
+		<input type="hidden" name="id" value="{{ $data->laporan->id }}">
 		<div class="card-body">
 			<div class="form-group row">
 				<label for="grup_laporan" class="col-sm-2 col-form-label">Grup</label>
@@ -81,31 +82,72 @@
 				</div>
 			</div>
 
-			@foreach ($data->laporan as $item)
+			@foreach ($data->detail as $item)
+				<input type="hidden" name="M_DETAIL_LAPORAN_ID" value="{{ $item->id }}">
+				<div class="form-group row embed-code">
+					<label for="cover_laporan" class="col-sm-2 col-form-label">Report</label>
+					<div class="col-sm-3">
+						<input type="text" class="form-control" id="keterangan_laporan" placeholder="Judul Halaman "
+							name="JUDUL_HALAMAN[]" value="{{ $item->JUDUL_HALAMAN }}">
+						<small class="text-red">*Perhatikan format penulisan</small>
+					</div>
+					<div class="col-sm-6">
+						<input type="text" class="form-control" id="keterangan_laporan" placeholder="Tableau Embed Code"
+							name="EMBED_CODE[]" value="{{ $item->EMBED_CODE }}">
+					</div>
+					<div class="col-sm-1 text-right d-flex justify-content-around align-items-start">
+						<span class="btn btn-danger delete"><i class="fas fa-times"></i></span>
+					</div>
+				</div>
 			@endforeach
-			<div class="form-group row embed-code">
-				<label for="cover_laporan" class="col-sm-2 col-form-label">Report</label>
-				<div class="col-sm-3">
-					<input type="text" class="form-control" id="keterangan_laporan" placeholder="Judul Halaman "
-						name="JUDUL_HALAMAN[]">
-					<small class="text-red">*Perhatikan format penulisan</small>
-				</div>
-				<div class="col-sm-6">
-					<input type="text" class="form-control" id="keterangan_laporan" placeholder="Tableau Embed Code"
-						name="EMBED_CODE[]">
-				</div>
-				<div class="col-sm-1 text-right">
-					<span class="btn btn-primary"><i class="far fa-plus-square"></i></span>
-				</div>
+			<div class="dynamic-form">
+
+			</div>
+			<div class="text-center">
+				<span class="btn btn-primary add-one"><i class="far fa-plus-square"></i></span>
 			</div>
 		</div>
 		<!-- /.card-body -->
+
+		<div class="form-group row embed-code d-none">
+			<label for="cover_laporan" class="col-sm-2 col-form-label">Report</label>
+			<div class="col-sm-3">
+				<input type="text" class="form-control" id="keterangan_laporan" placeholder="Judul Halaman "
+					name="JUDUL_HALAMAN[]">
+				<small class="text-red">*Perhatikan format penulisan</small>
+			</div>
+			<div class="col-sm-6">
+				<input type="text" class="form-control" id="keterangan_laporan" placeholder="Tableau Embed Code"
+					name="EMBED_CODE[]">
+			</div>
+			<div class="col-sm-1 text-right">
+				<span class="btn btn-primary add-one"><i class="far fa-plus-square"></i></span>
+			</div>
+		</div>
 	@endsection
 
 	@section('content_footer')
 
 		<button type="submit" class="btn btn-default">Cancel</button>
-		<button type="submit" class="btn btn-info  float-right">Sign in</button>
+		<button type="submit" class="btn btn-info  float-right">Simpan</button>
 		<!-- /.card-footer -->
 	</form>
+@endsection
+
+@section('page_scripts')
+	<script>
+	 $('.add-one').click(function() {
+	  $('.embed-code').first().clone().appendTo('.dynamic-form').show();
+	  attach_delete();
+	 });
+	 //Attach functionality to delete buttons
+	 function attach_delete() {
+	  $('.delete').off();
+	  $('.delete').click(function() {
+	   if ($('.embed-code').length > 1) {
+	    $(this).closest('.form-group').remove();
+	   }
+	  });
+	 }
+	</script>
 @endsection
