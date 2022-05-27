@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use  Illuminate\Http\Request;
 use App\Http\Requests\LaporanRequest;
 use App\Models\DetailLaporan;
 use App\Models\Laporan;
@@ -154,5 +155,10 @@ class LaporanController extends Controller
         }
 
         return false;
+    }
+
+    public function cutoffFilter(Request $req)
+    {
+        if ($req->exists('cutoff')) return redirect()->back()->withInput($req->cutoff);
     }
 }
