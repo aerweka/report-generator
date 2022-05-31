@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use  Illuminate\Http\Request;
+use Illuminate\Http\Request;
 use App\Http\Requests\LaporanRequest;
 use App\Models\DetailLaporan;
 use App\Models\Laporan;
+use App\Models\Grup;
+use App\Models\JenisLaporan;
 use Carbon\Carbon;
 
 class LaporanController extends Controller
@@ -17,7 +19,8 @@ class LaporanController extends Controller
      */
     public function index()
     {
-        return view('laporan.index');
+        $data = Laporan::all();
+        return view('laporan.index', compact('data'));
     }
 
     /**
@@ -27,7 +30,9 @@ class LaporanController extends Controller
      */
     public function create()
     {
-        return view('laporan.create');
+        $grup = Grup::all();
+        $jenis = JenisLaporan::all();
+        return view('laporan.create', compact('grup', 'jenis'));
     }
 
     /**
@@ -39,29 +44,26 @@ class LaporanController extends Controller
     public function store(LaporanRequest $request)
     {
         $validated = $request->validated();
-        echo "<script>console.log('" . json_decode($validated) . "')</script>";
-        $validated['COVER_LAPORAN'] = $this->saveAndCreatePathOfCoverLaporan($validated['COVER_LAPORAN']);
-        echo "<script>console.log('" . $validated['COVER_LAPORAN'] . "')</script>";
 
-        if (!$validated['COVER_LAPORAN']) return back()->withErrors('Gagal menyimpan cover laporan');
-        // if ($request->hasFile('COVER_LAPORAN')) {
-        //     $file = $request->file('COVER_LAPORAN');
-        //     $validated['COVER_LAPORAN'] = $path;
-        // }
+        if ($request->hasFile('COVER_LAPORAN')) {
+            $validated['COVER_LAPORAN'] = $this->saveAndCreatePathOfCoverLaporan($validated['COVER_LAPORAN']);
 
+            if (!$validated['COVER_LAPORAN']) return back()->withErrors('Gagal menyimpan cover laporan');
+        }
+        
         $data = Laporan::create($validated);
 
-        $index = 0;
-        foreach ($request as $value) {
+        for ($i=0; $i < count($request->EMBED_CODE) - 1; $i++) { 
+            $name = $this->getNameFromEmbedCode($request->EMBED_CODE[$i]);
             DetailLaporan::create([
-                'M_LAPORAN_ID' => $data->id,
-                'NOMOR_HALAMAN' => $index++,
-                'JUDUL_HALAMAN' => $value,
-                'EMBED_CODE' => $value,
+                'M_LAPORAN_ID' => $data->ID,
+                'NOMOR_HALAMAN' => $i+1,
+                'JUDUL_HALAMAN' => $request->JUDUL_HALAMAN[$i],
+                'EMBED_CODE' => $name,
             ]);
         }
 
-        return redirect()->route('laporan.show', ['id' => $data->id]);
+        return redirect()->route('laporan.show', ['id' => $data->ID]);
     }
 
     /**
@@ -72,11 +74,11 @@ class LaporanController extends Controller
      */
     public function show($id)
     {
-        $data = Laporan::where('id', $id)
-            ->rightJoin('M_DETAIL_LAPORAN', 'M_DETAIL_LAPORAN.M_LAPORAN_ID', 'M_LAPORAN.id')
-            ->pluck('JUDUL_HALAMAN', 'NOMOR_HALAMAN', 'EMBED_CODE', 'COVER_LAPORAN');
+        $laporan = Laporan::findOrFail($id);
 
-        return view('laporan.show', compact('data'));
+        $detail = DetailLaporan::where('M_LAPORAN_ID', $id)->get();
+
+        return view('laporan.show', compact('laporan', 'detail'));
     }
 
     /**
@@ -87,11 +89,15 @@ class LaporanController extends Controller
      */
     public function edit($id)
     {
-        $dataLaporan = Laporan::where('M_LAPORAN.id', $id)->get();
+        $laporan = Laporan::where('M_LAPORAN.id', $id)->get();
 
-        $dataDetail = DetailLaporan::where('M_LAPORAN_ID', $id)->get();
+        $detail = DetailLaporan::where('M_LAPORAN_ID', $id)->get();
 
-        return view('laporan.edit', compact('dataLaporan', 'dataDetail'));
+        $grup = Grup::all();
+        
+        $jenis = Grup::all();
+
+        return view('laporan.edit', compact('laporan', 'detail', 'grup', 'jenis'));
     }
 
     /**
@@ -117,15 +123,16 @@ class LaporanController extends Controller
 
         $data->update($validated);
 
-        $index = 0;
-        foreach ($request as $value) {
+        // foreach ($request as $value) {
+        for ($i=0; $i < count($request->EMBED_CODE) - 1; $i++) { 
+            $name = $this->getNameFromEmbedCode($request->EMBED_CODE[$i]);
             DetailLaporan::updateOrCreate([
-                'id' => $value->M_DETAIL_LAPORAN_ID,
+                'id' => $request->M_DETAIL_LAPORAN_ID[$i],
             ], [
-                'M_LAPORAN_ID' => $data->id,
+                'M_LAPORAN_ID' => $data->ID,
                 'NOMOR_HALAMAN' => $index++,
-                'JUDUL_HALAMAN' => $value->JUDUL_HALAMAN,
-                'EMBED_CODE' => $value->EMBED_CODE,
+                'JUDUL_HALAMAN' => $request->JUDUL_HALAMAN[$i],
+                'EMBED_CODE' => $name,
             ]);
         }
 
@@ -147,11 +154,12 @@ class LaporanController extends Controller
     {
         if ($file) {
             $fileName = Carbon::now() . '_cover_' . $file->getClientOriginalName();
-            return $file->storeAs(
+            $path = $file->storeAs(
                 'laporan',
                 $fileName,
                 'public'
             );
+            return $path;
         }
 
         return false;
@@ -159,6 +167,27 @@ class LaporanController extends Controller
 
     public function cutoffFilter(Request $req)
     {
-        if ($req->exists('cutoff')) return redirect()->back()->withInput($req->cutoff);
+        if ($req->exists('cutoff')) return redirect()->back()->with('date', $req->cutoff);
+    }
+
+    public function getNameFromEmbedCode($embed_code)
+    {
+        if ($embed_code == null) return false;
+
+        $value = $this->getStringBetween($embed_code, "name='site_root' value='' />", "<param name='tabs'");
+        // $value = $this->getStringBetween($embed_code, "<param name='name' ", " />");
+        // $value = $this->getStringBetween($value, "value='", "'");
+
+        return $value;
+    }
+
+    public function getStringBetween($value, $start, $end)
+    {
+        $string = ' ' . $value;
+        $init = strpos($string, $start);
+        if ($init == 0) return false;
+        $init += strlen($start);
+        $len = strpos($string, $end, $init) - $init;
+        return substr($string, $init, $len);
     }
 }
