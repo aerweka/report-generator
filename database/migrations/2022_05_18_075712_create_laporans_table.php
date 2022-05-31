@@ -16,9 +16,9 @@ class CreateLaporansTable extends Migration
         Schema::create('M_LAPORAN', function (Blueprint $table) {
             $table->id();
             $table->foreignId('M_GRUP_ID')->constrained('M_GRUP');
-            $table->string('JENIS_LAPORAN');
+            $table->foreignId('M_JENIS_LAPORAN_ID')->constrained('M_JENIS_LAPORAN');
             $table->string('JUDUL_LAPORAN');
-            $table->string('COVER_LAPORAN');
+            $table->string('COVER_LAPORAN')->nullable();
             $table->string('KETERANGAN_LAPORAN');
             $table->timestamps();
         });
