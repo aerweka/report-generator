@@ -54,9 +54,7 @@
 										</button>
 									</div>
 								</div>
-								<div class="card-body">
-									@yield('content_body')
-								</div>
+								@yield('content_body')
 								<!-- /.card-body -->
 								<div class="card-footer">
 									@yield('content_footer')

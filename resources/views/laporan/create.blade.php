@@ -14,7 +14,9 @@
 				<div class="col-sm-10">
 					<select name="M_GRUP_ID" class="custom-select @error('M_GRUP_ID') is-invalid @enderror" id="grup_laporan">
 						<option selected disabled>Pilih Grup</option>
-						<option>Value 1</option>
+						@foreach($grup as $grup)
+							<option value="{{ $grup->id }}">{{ $grup->NAMA_GRUP }}</option>
+						@endforeach
 					</select>
 					@error('M_GRUP_ID')
 						<span class="invalid-feedback">{{ $message }}</span>
@@ -24,11 +26,13 @@
 			<div class="form-group row">
 				<label for="jenis_laporan" class="col-sm-2 col-form-label">Jenis Laporan</label>
 				<div class="col-sm-10">
-					<select name="JENIS_LAPORAN" class="custom-select @error('JENIS_LAPORAN') is-invalid @enderror" id="jenis_laporan">
+					<select name="M_JENIS_LAPORAN_ID" class="custom-select @error('M_JENIS_LAPORAN_ID') is-invalid @enderror" id="jenis_laporan">
 						<option selected disabled>Pilih Jenis Laporan</option>
-						<option>Value 1</option>
+						@foreach($jenis as $jenis)
+							<option value="{{ $jenis->id }}">{{ $jenis->JENIS_LAPORAN }}</option>
+						@endforeach
 					</select>
-					@error('JENIS_LAPORAN')
+					@error('M_JENIS_LAPORAN_ID')
 						<span class="invalid-feedback">{{ $message }}</span>
 					@enderror
 				</div>
@@ -47,7 +51,7 @@
 				<label for="keterangan_laporan" class="col-sm-2 col-form-label">Keterangan Laporan</label>
 				<div class="col-sm-10">
 					<input type="text" class="form-control @error('KETERANGAN_LAPORAN') is-invalid @enderror"
-						id="keterangan_laporan value=" {{ old('KETERANGAN_LAPORAN') }}"" placeholder="Keterangan Laporan"
+						id="keterangan_laporan" value="{{ old('KETERANGAN_LAPORAN') }}" placeholder="Keterangan Laporan"
 						name="KETERANGAN_LAPORAN">
 					@error('KETERANGAN_LAPORAN')
 						<span class="invalid-feedback">{{ $message }}</span>

@@ -13,7 +13,7 @@ class LaporanRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -25,9 +25,9 @@ class LaporanRequest extends FormRequest
     {
         return [
             'M_GRUP_ID' => ['required', 'integer'],
-            'JENIS_LAPORAN' => ['required', 'string', 'max:255'],
+            'M_JENIS_LAPORAN_ID' => ['required', 'integer'],
             'JUDUL_LAPORAN' => ['required', 'string', 'max:255'],
-            'COVER_LAPORAN' => ['required', 'file'],
+            'COVER_LAPORAN' => ['file'],
             'KETERANGAN_LAPORAN' => ['string', 'max:255'],
         ];
     }
