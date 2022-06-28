@@ -29,6 +29,8 @@ class LaporanRequest extends FormRequest
             'JUDUL_LAPORAN' => ['required', 'string', 'max:255'],
             'COVER_LAPORAN' => ['file'],
             'KETERANGAN_LAPORAN' => ['string', 'max:255'],
+            'JUDUL_HALAMAN' => ['nullable', 'string'],
+            'EMBED_CODE' => ['nullable' ,'string']
         ];
     }
 }

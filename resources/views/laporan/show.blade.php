@@ -13,13 +13,18 @@
 	<div class="wrapper" style="background-color: #eaeaea">
 		<div class="container mx-auto d-flex flex-column" style="max-width: 857px;">
 			<section class="content-header px-0">
-				{{-- form input tanggal --}}
-				<div class="col-sm-12 d-flex justify-content-end">
-					<form action="{{ route('laporan.filter') }}" method="post">
-						@csrf
-						<input type="date" name="cutoff" id="" class="mr-2">
-						<input type="submit" value="Filter">
-					</form>
+				<div class="row container">
+					<div class="col-sm-2">
+						<a href="{{ route('laporan.edit', ['id' => $laporan->id]) }}" class="btn btn-primary">Edit</a>
+					</div>
+					{{-- form input tanggal --}}
+					<div class="col-sm-10 d-flex justify-content-end">
+						<form action="{{ route('laporan.filter') }}" method="post">
+							@csrf
+							<input type="date" name="cutoff" id="" class="mr-2">
+							<input type="submit" value="Filter">
+						</form>
+					</div>
 				</div>
 				{{-- form input tanggal --}}
 			</section>
@@ -45,7 +50,7 @@
 									@isset($detail)
 										@foreach ($detail as $lap)
 											<dt>
-												{{ $lap->JUDUL_HALAMAN }} 
+												{{ $lap->JUDUL_HALAMAN }}
 												<span class="text-right">{{ $lap->NOMOR_HALAMAN }}</span>
 											</dt>
 										@endforeach
@@ -62,18 +67,13 @@
 							<div class="row">
 								<div class="col-sm-12">
 									<h2>{{ $lap->JUDUL_HALAMAN }}</h2>
-									@php
-									var_dump($lap->EMBED_CODE)
-									@endphp
 									<script type='text/javascript' src='https://bi.pdam-sby.go.id/javascripts/api/viz_v1.js'></script>
 									<div class=' tableauPlaceholder' style='width: 827px; height: 1219px;'><object class='tableauViz' width='827'
 											height='1219' style='display:none;'>
 											<param name='host_url' value='https%3A%2F%2Fbi.pdam-sby.go.id%2F' />
 											<param name='embed_code_version' value='3' />
 											<param name='site_root' value='' />
-											{{-- <param name='name' value='LaporanBulananProdisEksekutifSummmary&#47;DetailNgagel' /> --}}
-											{{-- <param name='name' value='{{ $lap->EMBED_CODE }}' /> --}}
-											{{ $lap->EMBED_CODE }}
+											<param name='name' value='{!! $lap->EMBED_CODE !!}' />
 											<param name='tabs' value='false' />
 											<param name='toolbar' value='false' />
 											<param name='showAppBanner' value='false' />
