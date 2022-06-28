@@ -5,8 +5,8 @@
 @section('content_title', 'Ubah Laporan')
 
 @section('content_body')
-	<form method="POST" action="{{ route('laporan.update', ['id' => $laporan->id]) }}" class="form-horizontal" enctype="multipart/form-data"
-		id="laporan_form">
+	<form method="POST" action="{{ route('laporan.update', ['id' => $laporan->id]) }}" class="form-horizontal"
+		enctype="multipart/form-data" id="laporan_form">
 		@csrf
 		<input type="hidden" name="id" value="{{ $laporan->id }}">
 		<div class="card-body">
@@ -30,16 +30,17 @@
 			<div class="form-group row">
 				<label for="jenis_laporan" class="col-sm-2 col-form-label">Jenis Laporan</label>
 				<div class="col-sm-10">
-					<select name="JENIS_LAPORAN" class="custom-select @error('JENIS_LAPORAN') is-invalid @enderror" id="jenis_laporan">
+					<select name="M_JENIS_LAPORAN_ID" class="custom-select @error('M_JENIS_LAPORAN_ID') is-invalid @enderror"
+						id="jenis_laporan">
 						<option selected disabled>Pilih Jenis Laporan</option>
-						@isset($jenis_laporan)
-							@foreach ($jenis_laporan as $jenis)
-								<option value="{{ $jenis->id }}" {{ $laporan->M_GRUP_ID == $jenis->id && 'selected' }}>
-									{{ $jenis->NAMA_JENIS }}</option>
+						@isset($jenis)
+							@foreach ($jenis as $jenis)
+								<option value="{{ $jenis->id }}" {{ $laporan->M_JENIS_LAPORAN_ID == $jenis->id && 'selected' }}>
+									{{ $jenis->JENIS_LAPORAN }}</option>
 							@endforeach
 						@endisset
 					</select>
-					@error('JENIS_LAPORAN')
+					@error('M_JENIS_LAPORAN_ID')
 						<span class="invalid-feedback">{{ $message }}</span>
 					@enderror
 				</div>
@@ -57,9 +58,8 @@
 			<div class="form-group row">
 				<label for="keterangan_laporan" class="col-sm-2 col-form-label">Keterangan Laporan</label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control @error('KETERANGAN_LAPORAN') is-invalid @enderror"
-						id="keterangan_laporan" value=" {{ $laporan->KETERANGAN_LAPORAN }} " placeholder="Keterangan Laporan"
-						name="KETERANGAN_LAPORAN">
+					<input type="text" class="form-control @error('KETERANGAN_LAPORAN') is-invalid @enderror" id="keterangan_laporan"
+						value=" {{ $laporan->KETERANGAN_LAPORAN }} " placeholder="Keterangan Laporan" name="KETERANGAN_LAPORAN">
 					@error('KETERANGAN_LAPORAN')
 						<span class="invalid-feedback">{{ $message }}</span>
 					@enderror
@@ -81,7 +81,23 @@
 					@enderror
 				</div>
 			</div>
-
+			@if(count($detail) == 0)
+				<div class="form-group row embed-code">
+					<label for="cover_laporan" class="col-sm-2 col-form-label">Report</label>
+					<div class="col-sm-3">
+						<input type="text" class="form-control" id="keterangan_laporan" placeholder="Judul Halaman "
+							name="JUDUL_HALAMAN[]">
+						<small class="text-red">*Perhatikan format penulisan</small>
+					</div>
+					<div class="col-sm-6">
+						<input type="text" class="form-control" id="keterangan_laporan" placeholder="Tableau Embed Code"
+							name="EMBED_CODE[]">
+					</div>
+					<div class="col-sm-1 text-right d-flex justify-content-around align-items-start">
+						<span class="btn btn-danger delete"><i class="fas fa-times"></i></span>
+					</div>
+				</div>
+			@endif
 			@foreach ($detail as $item)
 				<input type="hidden" name="M_DETAIL_LAPORAN_ID[]" value="{{ $item->id }}">
 				<div class="form-group row embed-code">
